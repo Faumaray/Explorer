@@ -24,7 +24,7 @@ import javafx.scene.input.MouseEvent;
 
 public class PrimaryController {
 
-    final String rootPath = "C:\\Users\\sirog\\Documents\\GitProjects\\FileExplorer\\Explorer";
+    final String rootPath = "..\\";
     String curPath;
     LinkedList<String> backs = new LinkedList<String>();
     LinkedList<String> forwards = new LinkedList<String>();
