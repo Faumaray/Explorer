@@ -1,8 +1,14 @@
-package com;
+package explorer;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 
@@ -18,6 +24,8 @@ import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
 
+import java.awt.Graphics;
+
 public class FileWrapper{
     private File file;//holds the file object
     private SimpleObjectProperty<ImageView> Icon;
@@ -26,11 +34,18 @@ public class FileWrapper{
     private SimpleObjectProperty<Date> Date;
     private SimpleStringProperty Type;
     private SimpleBooleanProperty isDirectory;
+    private SimpleBooleanProperty isWritable;
 
     FileWrapper(File file) throws IOException{
         Icon = new SimpleObjectProperty<ImageView>();
-        ImageIcon icon = (ImageIcon) FileSystemView.getFileSystemView().getSystemIcon( file );
-        BufferedImage image = (BufferedImage) icon.getImage();
+        ImageIcon icon = (ImageIcon) FileSystemView.getFileSystemView().getSystemIcon(file);
+        BufferedImage image = new BufferedImage(
+            icon.getIconWidth(),
+            icon.getIconHeight(),
+            BufferedImage.TYPE_INT_ARGB);
+        Graphics g = image.createGraphics();
+        icon.paintIcon(null, g, 0,0);
+        g.dispose();
         Icon.set(new ImageView(SwingFXUtils.toFXImage(image, null)));
         Name = new SimpleStringProperty();
         Name.set(file.getName());
@@ -39,12 +54,14 @@ public class FileWrapper{
         Date = new SimpleObjectProperty<Date>();
         Date.set(new Date(file.lastModified()));
         Type = new SimpleStringProperty();
-        Type.set(FileSystemView.getFileSystemView().getSystemTypeDescription(file));
+        Type.set(Files.probeContentType(file.toPath()));
         isDirectory = new SimpleBooleanProperty();
         isDirectory.set(file.isDirectory());
+        isWritable = new SimpleBooleanProperty();
+        isWritable.set(Files.isWritable(file.toPath()));
         this.file = file;
     }
-    
+
     @Override
     public String toString() {
     return Name.getValue();

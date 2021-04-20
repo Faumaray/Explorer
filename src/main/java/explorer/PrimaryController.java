@@ -1,11 +1,16 @@
-package com;
+package explorer;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -24,7 +29,7 @@ import javafx.scene.input.MouseEvent;
 
 public class PrimaryController {
 
-    final String rootPath = "..\\";
+    final String rootPath = "../";
     String curPath;
     LinkedList<String> backs = new LinkedList<String>();
     LinkedList<String> forwards = new LinkedList<String>();
@@ -78,7 +83,7 @@ public class PrimaryController {
     private TableColumn<FileWrapper, String> icon;
 
     @FXML
-    void back(ActionEvent event) throws IOException 
+    void back(ActionEvent event) throws IOException
     {
         if(!backs.isEmpty())
         {
@@ -91,7 +96,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void enter(KeyEvent event) throws IOException 
+    void enter(KeyEvent event) throws IOException
     {
         if(event.getCode().toString().equals("ENTER"))
         {
@@ -109,7 +114,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void expand(MouseEvent event) throws IOException 
+    void expand(MouseEvent event) throws IOException
     {
         TreeItem<FileWrapper> item = tree.getSelectionModel().getSelectedItem();
         FileWrapper fwItem = item.getValue();
@@ -117,7 +122,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void forward(ActionEvent event) throws IOException 
+    void forward(ActionEvent event) throws IOException
     {
         if(!forwards.isEmpty())
         {
@@ -129,7 +134,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void home(ActionEvent event) throws IOException 
+    void home(ActionEvent event) throws IOException
     {
         forwards.clear();
         backs.add(curPath);
@@ -138,7 +143,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void search(KeyEvent event) throws IOException 
+    void search(KeyEvent event) throws IOException
     {   
         if(event.getCode().toString().equals("ENTER"))
         {
@@ -150,7 +155,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void cancel(ActionEvent event) throws IOException 
+    void cancel(ActionEvent event) throws IOException
     {
         search.clear();
         curPath = backs.getLast();
@@ -159,7 +164,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void doubleClick(MouseEvent event) throws IOException 
+    void doubleClick(MouseEvent event) throws IOException, URISyntaxException
     {
         if (event.isPrimaryButtonDown() && event.getClickCount() == 2)
         {
@@ -169,7 +174,7 @@ public class PrimaryController {
     }
 
     @FXML
-    void initialize() throws IOException {
+    void initialize() throws IOException{
         icon.setCellValueFactory(new PropertyValueFactory<FileWrapper, String>("Icon"));
         objectsName.setCellValueFactory(new PropertyValueFactory<FileWrapper, String>("Name"));
         objectsDate.setCellValueFactory(new PropertyValueFactory<FileWrapper, Long>("Date"));
@@ -230,12 +235,12 @@ public class PrimaryController {
         showFiles(curPath);
     }
 
-    void action(FileWrapper selected) throws IOException
+    void action(FileWrapper selected) throws IOException, URISyntaxException
     {
         if(selected.isDirectory())
             {
                 backs.add(curPath);
-                curPath += "\\" + selected.getName();
+                curPath += "/" + selected.getName();
                 if(!forwards.isEmpty())
                 {
                     if(!forwards.getLast().equals(curPath))
@@ -247,17 +252,17 @@ public class PrimaryController {
             }
         else
         {
-            openFile(curPath + "\\" + selected.getName());
+            openFile(curPath + "/" + selected.getName());
         }
     }
-    void openFile(String curPath) throws IOException
+    void openFile(String curPath) throws IOException, URISyntaxException
     {
-        Desktop desktop = Desktop.getDesktop();
         File file = new File(curPath);
-        desktop.open(file);
+        File myFile = new File(file.getCanonicalPath());
+        DesktopApi.open(myFile);
     }
 
-    void createTree(File file, TreeItem<FileWrapper> rootItem) throws IOException {
+    void createTree(File file, TreeItem<FileWrapper> rootItem) throws IOException{
         if (file.isDirectory()) 
         {
             FileWrapper fw = new FileWrapper(file);
@@ -269,7 +274,7 @@ public class PrimaryController {
         }
         else{}
     }
-    public void displayTreeView() throws IOException {
+    public void displayTreeView() throws IOException{
         // Creates the root item.
         FileWrapper root = new FileWrapper(new File(rootPath));
         TreeItem<FileWrapper> rootItem = new TreeItem<FileWrapper>(root,root.getImageView());

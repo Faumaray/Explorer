@@ -36,7 +36,7 @@
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane fx:id="root" dividerPositions="0.08862876254180602, 0.5" minHeight="250.0" minWidth="400.0" orientation="VERTICAL" pickOnBounds="false" prefHeight="575.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.PrimaryController">
+<SplitPane fx:id="root" dividerPositions="0.08862876254180602, 0.5" minHeight="250.0" minWidth="400.0" orientation="VERTICAL" pickOnBounds="false" prefHeight="575.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.PrimaryController">
    <items>
       <MenuBar>
         <menus>
