@@ -15,6 +15,8 @@ import java.util.Objects;
 import javax.swing.ImageIcon;
 import javax.swing.filechooser.FileSystemView;
 
+import org.apache.commons.io.FilenameUtils;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -64,7 +66,24 @@ public class FileWrapper{
 
     @Override
     public String toString() {
-    return Name.getValue();
+    return Name.getValue(); 
+    }
+
+    public String getPath()
+    {
+        return file.getAbsolutePath();
+    }
+
+    public void deleete()
+    {
+        
+    }
+
+    public void setName(String newName)
+    {
+        Name.set(newName);
+        File newDir = new File(file.getParent() + "\\" + newName);
+        file.renameTo(newDir);
     }
 
     public File getFile()
