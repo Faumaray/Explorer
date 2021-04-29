@@ -64,7 +64,28 @@ public class FileWrapper{
 
     @Override
     public String toString() {
+<<<<<<< Updated upstream
     return Name.getValue();
+=======
+    return Name.getValue(); 
+    }
+
+    public String getPath()
+    {
+        return file.getAbsolutePath();
+    }
+
+    public void deleete()
+    {
+        
+    }
+
+    public void setName(String newName)
+    {
+        Name.set(newName);
+        File newDir = new File(file.getParent() + "/" + newName);
+        file.renameTo(newDir);
+>>>>>>> Stashed changes
     }
 
     public File getFile()

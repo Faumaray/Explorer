@@ -2,7 +2,6 @@ package explorer;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -12,8 +11,12 @@ import java.io.IOException;
  * JavaFX App
  */
 public class App extends Application {
+<<<<<<< Updated upstream
     private static Scene scene;
 
+=======
+    final static String rootPath = "../";
+>>>>>>> Stashed changes
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("primary"), 900, 600);

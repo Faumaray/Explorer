@@ -31,6 +31,11 @@ public class PrimaryController {
 
     final String rootPath = "../";
     String curPath;
+<<<<<<< Updated upstream
+=======
+    String trashcan = "../Trashcan/";
+    String system = System.getProperty("user.dir");
+>>>>>>> Stashed changes
     LinkedList<String> backs = new LinkedList<String>();
     LinkedList<String> forwards = new LinkedList<String>();
 
@@ -83,6 +88,257 @@ public class PrimaryController {
     private TableColumn<FileWrapper, String> icon;
 
     @FXML
+<<<<<<< Updated upstream
+=======
+    private MenuItem Open;
+
+    @FXML
+    private MenuItem OpenInNewWindow;
+
+    @FXML
+    private MenuItem Rename;
+
+    @FXML
+    private MenuItem Delete;
+
+    @FXML
+    private MenuItem Cut;
+
+    @FXML
+    private MenuItem Copy;
+
+    @FXML
+    private MenuItem Paste;
+
+    @FXML
+    private MenuItem createFolder;
+
+    @FXML
+    private MenuItem createFile;
+
+    LinkedList<FileWrapper> cut = new LinkedList<FileWrapper>();
+    LinkedList<FileWrapper> copy = new LinkedList<FileWrapper>();
+    // TODO Посмотреть в методичке можно ли копировать или перемещать
+    @FXML
+    void Copy(ActionEvent event) throws IOException 
+    {
+        cut.clear();
+        copy(objects.getSelectionModel().getSelectedItems());
+        Paste.setVisible(true);
+    }
+
+    public void copy(ObservableList<FileWrapper> files) throws IOException
+    {
+        for(FileWrapper file : files)
+        {
+            copy.add(file);
+            if(file.isDirectory())
+            {
+               for(File tmp :  Files.walk(Paths.get(file.getPath()))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile)
+                .collect(Collectors.toList()))
+                {
+                    copy.add(new FileWrapper(tmp));
+                }
+            }
+        }
+    }
+
+    @FXML
+    void Cut(ActionEvent event) throws IOException 
+    {
+        copy.clear();
+        cut(objects.getSelectionModel().getSelectedItems());
+        Paste.setVisible(true);
+    }
+    public void cut(ObservableList<FileWrapper> files) throws IOException
+    {
+        for(FileWrapper file : files)
+        {
+            cut.add(file);
+            if(file.isDirectory())
+            {
+               for(File tmp :  Files.walk(Paths.get(file.getPath()))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile)
+                .collect(Collectors.toList()))
+                {
+                    cut.add(new FileWrapper(tmp));
+                }
+            }
+        }
+    }
+
+    @FXML
+    void Delete(ActionEvent event) throws IOException 
+    {
+        for(FileWrapper selected : objects.getSelectionModel().getSelectedItems())
+        {
+            if(selected.getPath().contains(trashcan) && !selected.getPath().equals(trashcan))
+            {
+                    if(selected.isDirectory())
+                    FileUtils.deleteDirectory(new File(selected.getPath()));
+                    else
+                    FileUtils.forceDelete(selected.getFile()); 
+            }
+            else
+            {
+                if(selected.getPath().contains("../Explorer-1") || selected.getPath().equals(system) || selected.getPath().equals(trashcan))
+                {
+                    throw new AccessDeniedException("Системная папка\\файл");
+                    //TODO SYS DELT ERR
+                }
+                else
+                {
+                    if(selected.isDirectory())
+                    FileUtils.moveDirectory(new File(selected.getPath()),new File(trashcan+selected.getName()));
+                    else
+                    FileUtils.moveFileToDirectory(new File(selected.getPath()), new File(trashcan), false);
+        
+                    
+                }
+            
+            }
+        }
+        showFiles(curPath);
+    }
+
+    @FXML
+    void Paste(ActionEvent event) throws IOException 
+    {
+        if(!cut.isEmpty())
+        {
+            for(FileWrapper file : cut)
+            {
+                Files.move(Path.of(file.getPath()), Path.of(curPath+"/"+file.getName()), StandardCopyOption.REPLACE_EXISTING);
+            }
+            Paste.setVisible(false);
+            cut.clear();
+        }
+        if(!copy.isEmpty())
+        {
+            for(FileWrapper file : copy)
+            {
+                Files.copy(Path.of(file.getPath()), Path.of(curPath+"/"+file.getName()), StandardCopyOption.REPLACE_EXISTING);
+            }
+            Paste.setVisible(false);
+            copy.clear();
+        }
+        
+    }
+
+    @FXML
+    void createFile(ActionEvent event) throws IOException 
+    {
+        if(curPath.contains("../Explorer-1") || curPath.equals(system) || curPath.equals(trashcan) || curPath.contains(trashcan))
+            {
+                throw new AccessDeniedException("Системная папка\\файл");
+            }
+            else
+            {
+                int i = 0;
+                File newfile = new File(curPath + "/newfilename");
+                newfile.createNewFile();
+                while(newfile.createNewFile() != true)
+                {
+                    i++;
+                    newfile = new File(curPath + "/newfilename" + i);
+                }
+                String filename = newfile.getName();
+                showFiles(curPath);
+                objects.getSelectionModel().select(objects.getItems().stream().filter(carnet -> filename.equals(carnet.getName())).findFirst().orElse(null));
+                int selectedRowIndex = objects.getSelectionModel().getSelectedIndex();
+                objects.edit(selectedRowIndex, objects.getColumns().get(1));
+            }
+    }
+
+    @FXML
+    void createFolder(ActionEvent event) throws IOException 
+    {
+        System.out.println(curPath);
+        if(curPath.contains("../Explorer-1") || curPath.equals(system) || curPath.equals(trashcan) || curPath.contains(trashcan))
+            {
+                throw new AccessDeniedException("Системная папка\\файл");
+            }
+            else
+            {
+                int i = 0;
+                File newdir = new File(curPath + "/newfoldername");
+                while(true)
+                {
+                    try
+                    {
+                        Files.createDirectory(newdir.toPath());
+                        break;
+                    }
+                    catch(FileAlreadyExistsException e)
+                    {
+                        i++;
+                        newdir = new File(curPath + "/newfoldername" + i);
+                    }
+                }
+                String dirname = newdir.getName();
+                showFiles(curPath);
+                objects.getSelectionModel().select(objects.getItems().stream().filter(carnet -> dirname.equals(carnet.getName())).findFirst().orElse(null));
+                int selectedRowIndex = objects.getSelectionModel().getSelectedIndex();
+                objects.edit(selectedRowIndex, objects.getColumns().get(1));
+            }
+    }
+
+    @FXML
+    void Open(ActionEvent event) throws IOException, URISyntaxException 
+    {
+        FileWrapper selected = objects.getSelectionModel().getSelectedItem();
+        action(selected);
+    }
+
+    @FXML
+    void OpenNewWindow(ActionEvent event) throws IOException 
+    {
+        FileWrapper selected = objects.getSelectionModel().getSelectedItem();
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("primary.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
+        Stage stage = new Stage();
+        stage.setTitle(curPath + "/" + selected.getName());
+        stage.setScene(scene);
+        PrimaryController controller=fxmlLoader.<PrimaryController>getController();
+        controller.initData(curPath + "/" + selected.getName());
+        stage.show();
+    }
+
+    @FXML
+    void Rename(ActionEvent event) 
+    {
+        if(curPath.contains(system) || curPath.equals(system) ||curPath.equals(system))
+            {
+                //TODO SYS DELT ERR
+            }
+            else
+            {
+                int selectedRowIndex = objects.getSelectionModel().getSelectedIndex();
+                objects.edit(selectedRowIndex, objects.getColumns().get(1));
+            }
+    }
+
+    @FXML
+    void renamecom(CellEditEvent<FileWrapper, String> event) throws IOException, URISyntaxException 
+    {
+        FileWrapper selected = objects.getSelectionModel().getSelectedItem();
+        selected.setName(event.getNewValue());
+        showFiles(curPath);
+    }
+
+
+    @FXML
+    void contextFiles(ContextMenuEvent event) 
+    {
+
+    }
+
+    @FXML
+>>>>>>> Stashed changes
     void back(ActionEvent event) throws IOException
     {
         if(!backs.isEmpty())
@@ -240,7 +496,19 @@ public class PrimaryController {
         if(selected.isDirectory())
             {
                 backs.add(curPath);
+<<<<<<< Updated upstream
                 curPath += "/" + selected.getName();
+=======
+                if(curPath.equals(App.rootPath))
+                {
+                    curPath += selected.getName();
+                }
+                else
+                {
+                    curPath += "/"+selected.getName();
+                }
+                
+>>>>>>> Stashed changes
                 if(!forwards.isEmpty())
                 {
                     if(!forwards.getLast().equals(curPath))
